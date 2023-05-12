@@ -72,8 +72,8 @@ export function create(
   // Program ID.
   const programId = {
     ...context.programs.getPublicKey(
-      'mplProjectName',
-      'MyProgram1111111111111111111111111111111111'
+      'bglShootout',
+      'DUCKdJdA2Hexw9ZS7M5rcDfJneVF3ptQF1NDEJ9RMTbj'
     ),
     isWritable: false,
   };
