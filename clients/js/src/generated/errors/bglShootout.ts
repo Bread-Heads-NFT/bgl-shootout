@@ -54,6 +54,32 @@ export class SerializationErrorError extends ProgramError {
 codeToErrorMap.set(0x2, SerializationErrorError);
 nameToErrorMap.set('SerializationError', SerializationErrorError);
 
+/** DerivedKeyInvalid: Derived Key Invalid */
+export class DerivedKeyInvalidError extends ProgramError {
+  readonly name: string = 'DerivedKeyInvalid';
+
+  readonly code: number = 0x3; // 3
+
+  constructor(program: Program, cause?: Error) {
+    super('Derived Key Invalid', program, cause);
+  }
+}
+codeToErrorMap.set(0x3, DerivedKeyInvalidError);
+nameToErrorMap.set('DerivedKeyInvalid', DerivedKeyInvalidError);
+
+/** NumericalOverflowError: Numerical Overflow Error */
+export class NumericalOverflowErrorError extends ProgramError {
+  readonly name: string = 'NumericalOverflowError';
+
+  readonly code: number = 0x4; // 4
+
+  constructor(program: Program, cause?: Error) {
+    super('Numerical Overflow Error', program, cause);
+  }
+}
+codeToErrorMap.set(0x4, NumericalOverflowErrorError);
+nameToErrorMap.set('NumericalOverflowError', NumericalOverflowErrorError);
+
 /**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors

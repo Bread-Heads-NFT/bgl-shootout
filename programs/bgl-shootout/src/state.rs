@@ -7,28 +7,77 @@ use solana_program::program_error::ProgramError;
 use solana_program::pubkey::Pubkey;
 
 use crate::error::BglShootoutError;
+use crate::util::rand_choice;
+
+pub const GAME: &str = "game";
 
 #[derive(Clone, BorshSerialize, BorshDeserialize, Debug)]
 pub enum Key {
     Uninitialized,
-    MyAccount,
-    MyPdaAccount,
+    GameAccount,
+    Response,
+}
+
+/// Fancy rock paper scissors:
+/// - Shoot beats Lasso
+/// - Lasso beats Duck
+/// - Duck beats Shoot
+#[derive(Clone, BorshSerialize, BorshDeserialize, Debug, Eq, PartialEq)]
+pub enum Action {
+    Shoot,
+    Lasso,
+    Duck,
+}
+
+pub enum RoundResult {
+    PlayerWin,
+    CpuWin,
+    Draw,
+}
+
+impl Action {
+    pub fn rand_action(slot_hashes: &AccountInfo) -> Result<Self, ProgramError> {
+        rand_choice(
+            &vec![Action::Shoot, Action::Lasso, Action::Duck],
+            slot_hashes,
+        )
+    }
+
+    pub fn get_round_result(player_action: Action, cpu_action: Action) -> RoundResult {
+        match (player_action, cpu_action) {
+            (Action::Shoot, Action::Shoot)
+            | (Action::Duck, Action::Duck)
+            | (Action::Lasso, Action::Lasso) => RoundResult::Draw,
+            (Action::Shoot, Action::Lasso)
+            | (Action::Lasso, Action::Duck)
+            | (Action::Duck, Action::Shoot) => RoundResult::PlayerWin,
+            (Action::Shoot, Action::Duck)
+            | (Action::Lasso, Action::Shoot)
+            | (Action::Duck, Action::Lasso) => RoundResult::CpuWin,
+        }
+    }
 }
 
 #[repr(C)]
 #[derive(Clone, BorshSerialize, BorshDeserialize, Debug, ShankAccount)]
-pub struct MyAccount {
+pub struct GameAccount {
     pub key: Key,
-    pub authority: Pubkey,
-    pub data: MyData,
+    pub bump: u8,
+    pub owner: Pubkey,
+    pub mint: Pubkey,
+    pub match_name: String,
+    pub player_wins: u8,
+    pub cpu_wins: u8,
+    pub draws: u8,
+    pub num_rounds: u8,
 }
 
-impl MyAccount {
-    pub const LEN: usize = 1 + 32 + MyData::LEN;
+impl GameAccount {
+    pub const LEN: usize = 1 + 1 + 32 + 32 + (4 + 32) + 4 + 4 + 128;
 
     pub fn load(account: &AccountInfo) -> Result<Self, ProgramError> {
         let mut bytes: &[u8] = &(*account.data).borrow();
-        MyAccount::deserialize(&mut bytes).map_err(|error| {
+        GameAccount::deserialize(&mut bytes).map_err(|error| {
             msg!("Error: {}", error);
             BglShootoutError::DeserializationError.into()
         })
@@ -43,21 +92,4 @@ impl MyAccount {
         account.try_borrow_mut_data().unwrap()[..bytes.len()].copy_from_slice(&bytes);
         Ok(())
     }
-}
-
-#[repr(C)]
-#[derive(Clone, BorshSerialize, BorshDeserialize, Debug, ShankAccount)]
-pub struct MyPdaAccount {
-    pub key: Key,
-    pub bump: u8,
-}
-
-#[derive(Clone, BorshSerialize, BorshDeserialize, Debug)]
-pub struct MyData {
-    pub foo: u16,
-    pub bar: u32,
-}
-
-impl MyData {
-    pub const LEN: usize = 2 + 4;
 }

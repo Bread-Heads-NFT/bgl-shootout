@@ -11,12 +11,22 @@ pub enum BglShootoutError {
     /// 0 - Invalid System Program
     #[error("Invalid System Program")]
     InvalidSystemProgram,
+
     /// 1 - Error deserializing account
     #[error("Error deserializing account")]
     DeserializationError,
+
     /// 2 - Error serializing account
     #[error("Error serializing account")]
     SerializationError,
+
+    /// 3 - Derived Key Invalid
+    #[error("Derived Key Invalid")]
+    DerivedKeyInvalid,
+
+    /// 4 - Numerical Overflow Error
+    #[error("Numerical Overflow Error")]
+    NumericalOverflowError,
 }
 
 impl PrintProgramError for BglShootoutError {

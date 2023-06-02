@@ -11,12 +11,12 @@ const kinobi = k.createFromIdls([path.join(idlDir, "bgl_shootout.json")]);
 // Update accounts.
 kinobi.update(
   new k.UpdateAccountsVisitor({
-    myPdaAccount: {
+    GameAccount: {
       seeds: [
-        k.stringConstantSeed("myPdaAccount"),
-        k.programSeed(),
-        k.publicKeySeed("authority", "The address of the authority"),
-        k.stringSeed("name", "The name of the account"),
+        k.stringConstantSeed("game"),
+        k.stringSeed("matchName", "The name of the match."),
+        k.publicKeySeed("payerAddress", "The address of the payer and authority."),
+        k.publicKeySeed("mint", "The mint address of the player."),
       ],
     },
     // ...
@@ -27,7 +27,7 @@ kinobi.update(
 kinobi.update(
   new k.UpdateInstructionsVisitor({
     create: {
-      bytesCreatedOnChain: k.bytesFromAccount("myAccount"),
+      bytesCreatedOnChain: k.bytesFromAccount("GameAccount"),
     },
     // ...
   })
@@ -37,8 +37,7 @@ kinobi.update(
 const key = (name) => ({ field: "key", value: k.vEnum("Key", name) });
 kinobi.update(
   new k.SetAccountDiscriminatorFromFieldVisitor({
-    myAccount: key("MyAccount"),
-    myPdaAccount: key("MyPdaAccount"),
+    GameAccount: key("GameAccount"),
   })
 );
 

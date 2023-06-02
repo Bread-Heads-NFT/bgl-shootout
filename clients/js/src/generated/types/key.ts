@@ -10,8 +10,8 @@ import { Context, Serializer } from '@metaplex-foundation/umi';
 
 export enum Key {
   Uninitialized,
-  MyAccount,
-  MyPdaAccount,
+  GameAccount,
+  Response,
 }
 
 export type KeyArgs = Key;

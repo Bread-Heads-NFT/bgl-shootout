@@ -6,5 +6,5 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
+export * from './action';
 export * from './key';
-export * from './myData';

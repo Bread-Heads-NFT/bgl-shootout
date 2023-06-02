@@ -7,20 +7,23 @@ license-file = "../../LICENSE"
 publish = false
 
 [dependencies]
-solana-program = "=1.14.13"
+solana-program = "=1.14.18"
 shank = "0.0.12"
 borsh = "0.9.3"
 thiserror = "~1.0"
 num-derive = "0.3.3"
 num-traits = "~0.2"
+mpl-utils = "0.2.0"
+arrayref = "0.3.7"
+winnow = "=0.4.1"
 
 [features]
 test-bpf = []
 
 [dev-dependencies]
 assert_matches = "1.5.0"
-solana-program-test = "=1.14.13"
-solana-sdk = "=1.14.13"
+solana-program-test = "=1.14.18"
+solana-sdk = "=1.14.18"
 
 [lib]
 crate-type = ["cdylib", "lib"]

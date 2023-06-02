@@ -7,7 +7,6 @@
  */
 
 import {
-  ACCOUNT_HEADER_SIZE,
   AccountMeta,
   Context,
   PublicKey,
@@ -17,15 +16,12 @@ import {
   mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
-import { getMyAccountSize } from '../accounts';
 import { addObjectProperty, isWritable } from '../shared';
 
 // Accounts.
-export type CreateInstructionAccounts = {
-  /** The address of the new account */
-  address: Signer;
-  /** The authority of the new account */
-  authority?: PublicKey;
+export type StartGameInstructionAccounts = {
+  /** The PDA of the game */
+  gamePda: PublicKey;
   /** The account paying for the storage fees */
   payer?: Signer;
   /** The system program */
@@ -33,38 +29,48 @@ export type CreateInstructionAccounts = {
 };
 
 // Data.
-export type CreateInstructionData = {
+export type StartGameInstructionData = {
   discriminator: number;
-  foo: number;
-  bar: number;
+  matchName: string;
+  mint: PublicKey;
+  numRounds: number;
 };
 
-export type CreateInstructionDataArgs = { foo: number; bar: number };
+export type StartGameInstructionDataArgs = {
+  matchName: string;
+  mint: PublicKey;
+  numRounds: number;
+};
 
-export function getCreateInstructionDataSerializer(
+export function getStartGameInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<CreateInstructionDataArgs, CreateInstructionData> {
+): Serializer<StartGameInstructionDataArgs, StartGameInstructionData> {
   const s = context.serializer;
-  return mapSerializer<CreateInstructionDataArgs, any, CreateInstructionData>(
-    s.struct<CreateInstructionData>(
+  return mapSerializer<
+    StartGameInstructionDataArgs,
+    any,
+    StartGameInstructionData
+  >(
+    s.struct<StartGameInstructionData>(
       [
         ['discriminator', s.u8()],
-        ['foo', s.u16()],
-        ['bar', s.u32()],
+        ['matchName', s.string()],
+        ['mint', s.publicKey()],
+        ['numRounds', s.u8()],
       ],
-      { description: 'CreateInstructionData' }
+      { description: 'StartGameInstructionData' }
     ),
     (value) => ({ ...value, discriminator: 0 })
-  ) as Serializer<CreateInstructionDataArgs, CreateInstructionData>;
+  ) as Serializer<StartGameInstructionDataArgs, StartGameInstructionData>;
 }
 
 // Args.
-export type CreateInstructionArgs = CreateInstructionDataArgs;
+export type StartGameInstructionArgs = StartGameInstructionDataArgs;
 
 // Instruction.
-export function create(
-  context: Pick<Context, 'serializer' | 'programs' | 'identity' | 'payer'>,
-  input: CreateInstructionAccounts & CreateInstructionArgs
+export function startGame(
+  context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
+  input: StartGameInstructionAccounts & StartGameInstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
@@ -81,11 +87,6 @@ export function create(
   // Resolved inputs.
   const resolvingAccounts = {};
   const resolvingArgs = {};
-  addObjectProperty(
-    resolvingAccounts,
-    'authority',
-    input.authority ?? context.identity.publicKey
-  );
   addObjectProperty(resolvingAccounts, 'payer', input.payer ?? context.payer);
   addObjectProperty(
     resolvingAccounts,
@@ -101,19 +102,11 @@ export function create(
   const resolvedAccounts = { ...input, ...resolvingAccounts };
   const resolvedArgs = { ...input, ...resolvingArgs };
 
-  // Address.
-  signers.push(resolvedAccounts.address);
+  // Game Pda.
   keys.push({
-    pubkey: resolvedAccounts.address.publicKey,
-    isSigner: true,
-    isWritable: isWritable(resolvedAccounts.address, true),
-  });
-
-  // Authority.
-  keys.push({
-    pubkey: resolvedAccounts.authority,
+    pubkey: resolvedAccounts.gamePda,
     isSigner: false,
-    isWritable: isWritable(resolvedAccounts.authority, false),
+    isWritable: isWritable(resolvedAccounts.gamePda, true),
   });
 
   // Payer.
@@ -133,10 +126,10 @@ export function create(
 
   // Data.
   const data =
-    getCreateInstructionDataSerializer(context).serialize(resolvedArgs);
+    getStartGameInstructionDataSerializer(context).serialize(resolvedArgs);
 
   // Bytes Created On Chain.
-  const bytesCreatedOnChain = getMyAccountSize() + ACCOUNT_HEADER_SIZE;
+  const bytesCreatedOnChain = 0;
 
   return transactionBuilder([
     { instruction: { keys, programId, data }, signers, bytesCreatedOnChain },

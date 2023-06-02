@@ -3,19 +3,13 @@
   "name": "bgl_shootout",
   "instructions": [
     {
-      "name": "Create",
+      "name": "StartGame",
       "accounts": [
         {
-          "name": "address",
+          "name": "gamePda",
           "isMut": true,
-          "isSigner": true,
-          "desc": "The address of the new account"
-        },
-        {
-          "name": "authority",
-          "isMut": false,
           "isSigner": false,
-          "desc": "The authority of the new account"
+          "desc": "The PDA of the game"
         },
         {
           "name": "payer",
@@ -32,9 +26,9 @@
       ],
       "args": [
         {
-          "name": "createArgs",
+          "name": "startGameArgs",
           "type": {
-            "defined": "CreateArgs"
+            "defined": "StartGameArgs"
           }
         }
       ],
@@ -42,35 +36,81 @@
         "type": "u8",
         "value": 0
       }
+    },
+    {
+      "name": "EndGame",
+      "accounts": [
+        {
+          "name": "gamePda",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The PDA of the game"
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "desc": "The account paying for the storage fees"
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The system program"
+        }
+      ],
+      "args": [
+        {
+          "name": "endGameArgs",
+          "type": {
+            "defined": "EndGameArgs"
+          }
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 1
+      }
+    },
+    {
+      "name": "PlayRound",
+      "accounts": [
+        {
+          "name": "gamePda",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The PDA of the game"
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "desc": "The account paying for the storage fees"
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The system program"
+        }
+      ],
+      "args": [
+        {
+          "name": "playRoundArgs",
+          "type": {
+            "defined": "PlayRoundArgs"
+          }
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 2
+      }
     }
   ],
   "accounts": [
     {
-      "name": "MyAccount",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "key",
-            "type": {
-              "defined": "Key"
-            }
-          },
-          {
-            "name": "authority",
-            "type": "publicKey"
-          },
-          {
-            "name": "data",
-            "type": {
-              "defined": "MyData"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "MyPdaAccount",
+      "name": "GameAccount",
       "type": {
         "kind": "struct",
         "fields": [
@@ -83,6 +123,34 @@
           {
             "name": "bump",
             "type": "u8"
+          },
+          {
+            "name": "owner",
+            "type": "publicKey"
+          },
+          {
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "matchName",
+            "type": "string"
+          },
+          {
+            "name": "playerWins",
+            "type": "u8"
+          },
+          {
+            "name": "cpuWins",
+            "type": "u8"
+          },
+          {
+            "name": "draws",
+            "type": "u8"
+          },
+          {
+            "name": "numRounds",
+            "type": "u8"
           }
         ]
       }
@@ -90,33 +158,59 @@
   ],
   "types": [
     {
-      "name": "CreateArgs",
+      "name": "EndGameArgs",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "foo",
-            "type": "u16"
+            "name": "matchName",
+            "type": "string"
           },
           {
-            "name": "bar",
-            "type": "u32"
+            "name": "mint",
+            "type": "publicKey"
           }
         ]
       }
     },
     {
-      "name": "MyData",
+      "name": "PlayRoundArgs",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "foo",
-            "type": "u16"
+            "name": "matchName",
+            "type": "string"
           },
           {
-            "name": "bar",
-            "type": "u32"
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "action",
+            "type": {
+              "defined": "Action"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "StartGameArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "matchName",
+            "type": "string"
+          },
+          {
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "numRounds",
+            "type": "u8"
           }
         ]
       }
@@ -130,10 +224,27 @@
             "name": "Uninitialized"
           },
           {
-            "name": "MyAccount"
+            "name": "GameAccount"
           },
           {
-            "name": "MyPdaAccount"
+            "name": "Response"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Action",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Shoot"
+          },
+          {
+            "name": "Lasso"
+          },
+          {
+            "name": "Duck"
           }
         ]
       }
@@ -154,6 +265,16 @@
       "code": 2,
       "name": "SerializationError",
       "msg": "Error serializing account"
+    },
+    {
+      "code": 3,
+      "name": "DerivedKeyInvalid",
+      "msg": "Derived Key Invalid"
+    },
+    {
+      "code": 4,
+      "name": "NumericalOverflowError",
+      "msg": "Numerical Overflow Error"
     }
   ],
   "metadata": {

@@ -8,19 +8,20 @@
 
 import { Context, Serializer } from '@metaplex-foundation/umi';
 
-export type MyData = { foo: number; bar: number };
+export enum Action {
+  Shoot,
+  Lasso,
+  Duck,
+}
 
-export type MyDataArgs = MyData;
+export type ActionArgs = Action;
 
-export function getMyDataSerializer(
+export function getActionSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<MyDataArgs, MyData> {
+): Serializer<ActionArgs, Action> {
   const s = context.serializer;
-  return s.struct<MyData>(
-    [
-      ['foo', s.u16()],
-      ['bar', s.u32()],
-    ],
-    { description: 'MyData' }
-  ) as Serializer<MyDataArgs, MyData>;
+  return s.enum<Action>(Action, { description: 'Action' }) as Serializer<
+    ActionArgs,
+    Action
+  >;
 }
