@@ -1,5 +1,5 @@
 {
-  "name": "@metaplex-foundation/bgl-shootout",
+  "name": "bgl-shootout",
   "version": "0.1.0",
   "description": "A shootout game for Bread Heads",
   "main": "dist/src/index.js",
