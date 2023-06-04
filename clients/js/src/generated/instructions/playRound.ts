@@ -14,6 +14,7 @@ import {
   Signer,
   TransactionBuilder,
   mapSerializer,
+  publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import { addObjectProperty, isWritable } from '../shared';
@@ -25,6 +26,8 @@ export type PlayRoundInstructionAccounts = {
   gamePda: PublicKey;
   /** The account paying for the storage fees */
   payer?: Signer;
+  /** The Slot_Hashes System Variable */
+  slotHashesSysvar?: PublicKey;
   /** The system program */
   systemProgram?: PublicKey;
 };
@@ -91,6 +94,12 @@ export function playRound(
   addObjectProperty(resolvingAccounts, 'payer', input.payer ?? context.payer);
   addObjectProperty(
     resolvingAccounts,
+    'slotHashesSysvar',
+    input.slotHashesSysvar ??
+      publicKey('SysvarS1otHashes111111111111111111111111111')
+  );
+  addObjectProperty(
+    resolvingAccounts,
     'systemProgram',
     input.systemProgram ?? {
       ...context.programs.getPublicKey(
@@ -116,6 +125,13 @@ export function playRound(
     pubkey: resolvedAccounts.payer.publicKey,
     isSigner: true,
     isWritable: isWritable(resolvedAccounts.payer, true),
+  });
+
+  // Slot Hashes Sysvar.
+  keys.push({
+    pubkey: resolvedAccounts.slotHashesSysvar,
+    isSigner: false,
+    isWritable: isWritable(resolvedAccounts.slotHashesSysvar, false),
   });
 
   // System Program.

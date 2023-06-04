@@ -26,6 +26,7 @@ pub enum BglShootoutInstruction {
     /// Close the game account.
     #[account(0, writable, name="game_pda", desc = "The PDA of the game")]
     #[account(1, writable, signer, name="payer", desc = "The account paying for the storage fees")]
-    #[account(2, name="system_program", desc = "The system program")]
+    #[account(2, name="slot_hashes_sysvar", desc = "The Slot_Hashes System Variable")]
+    #[account(3, name="system_program", desc = "The system program")]
     PlayRound(PlayRoundArgs),
 }
