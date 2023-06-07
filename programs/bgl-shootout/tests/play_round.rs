@@ -36,6 +36,7 @@ async fn play_round() {
     let ix = bgl_shootout::instruction::start_game(
         &game_pda_address.0,
         &context.payer.pubkey(),
+        &None,
         start_args,
     );
 

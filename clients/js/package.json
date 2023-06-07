@@ -1,6 +1,6 @@
 {
   "name": "bgl-shootout",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A shootout game for Bread Heads",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",

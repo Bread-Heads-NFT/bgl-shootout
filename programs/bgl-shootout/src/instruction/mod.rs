@@ -15,6 +15,7 @@ pub enum BglShootoutInstruction {
     #[account(0, writable, name="game_pda", desc = "The PDA of the game")]
     #[account(1, writable, signer, name="payer", desc = "The account paying for the storage fees")]
     #[account(2, name="system_program", desc = "The system program")]
+    #[account(3, optional, name="authority", desc = "The authority who will control gameplay")]
     StartGame(StartGameArgs),
 
     /// Close the game account.

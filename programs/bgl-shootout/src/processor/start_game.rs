@@ -18,16 +18,21 @@ pub(crate) fn start_game(accounts: &[AccountInfo], args: StartGameArgs) -> Progr
     let payer_info = next_account_info(account_info_iter)?;
     let system_program = next_account_info(account_info_iter)?;
 
+    let authority_info = match next_account_info(account_info_iter) {
+        Ok(authority) => authority,
+        Err(_) => payer_info,
+    };
+
     // Guards.
     if *system_program.key != system_program::id() {
         return Err(BglShootoutError::InvalidSystemProgram.into());
     }
 
-    let payer_address = payer_info.key.to_bytes();
+    let authority_address = authority_info.key.to_bytes();
     let mut game_seeds = vec![
         GAME.as_bytes(),
         args.match_name.as_bytes(),
-        &payer_address,
+        &authority_address,
         args.mint.as_ref(),
     ];
 

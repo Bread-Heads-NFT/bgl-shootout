@@ -26,6 +26,8 @@ export type StartGameInstructionAccounts = {
   payer?: Signer;
   /** The system program */
   systemProgram?: PublicKey;
+  /** The authority who will control gameplay */
+  authority?: PublicKey;
 };
 
 // Data.
@@ -123,6 +125,15 @@ export function startGame(
     isSigner: false,
     isWritable: isWritable(resolvedAccounts.systemProgram, false),
   });
+
+  // Authority (optional).
+  if (resolvedAccounts.authority) {
+    keys.push({
+      pubkey: resolvedAccounts.authority,
+      isSigner: false,
+      isWritable: isWritable(resolvedAccounts.authority, false),
+    });
+  }
 
   // Data.
   const data =

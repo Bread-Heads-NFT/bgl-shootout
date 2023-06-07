@@ -15,12 +15,22 @@ pub struct StartGameArgs {
     pub num_rounds: u8,
 }
 
-pub fn start_game(game_pda: &Pubkey, payer: &Pubkey, args: StartGameArgs) -> Instruction {
-    let accounts = vec![
+pub fn start_game(
+    game_pda: &Pubkey,
+    payer: &Pubkey,
+    authority: &Option<Pubkey>,
+    args: StartGameArgs,
+) -> Instruction {
+    let mut accounts = vec![
         AccountMeta::new(*game_pda, false),
         AccountMeta::new(*payer, true),
         AccountMeta::new_readonly(system_program::ID, false),
     ];
+
+    if let Some(authority) = authority {
+        accounts.push(AccountMeta::new_readonly(*authority, false));
+    }
+
     Instruction {
         program_id: crate::ID,
         accounts,

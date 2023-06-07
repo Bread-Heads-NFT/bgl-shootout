@@ -36,6 +36,7 @@ async fn end_game() {
     let ix = bgl_shootout::instruction::start_game(
         &game_pda_address.0,
         &context.payer.pubkey(),
+        &None,
         start_args,
     );
 
